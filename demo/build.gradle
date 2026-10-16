@@ -1,0 +1,62 @@
+plugins {
+    id 'application'
+}
+
+def lwjglVersion = rootProject.ext.lwjglVersion
+
+// Detect operating system and CPU architecture
+def os = System.getProperty('os.name').toLowerCase()
+def arch = System.getProperty('os.arch').toLowerCase()
+
+def isArm64 = arch.contains('aarch64') || arch.contains('arm64')
+
+def natives
+
+if (os.contains('win')) {
+    natives = isArm64
+            ? 'natives-windows-arm64'
+            : 'natives-windows'
+
+} else if (os.contains('mac')) {
+    natives = isArm64
+            ? 'natives-macos-arm64'
+            : 'natives-macos'
+
+} else if (os.contains('linux')) {
+    natives = isArm64
+            ? 'natives-linux-arm64'
+            : 'natives-linux'
+
+} else {
+    throw new GradleException("Unsupported OS: $os")
+}
+
+dependencies {
+    // Your pitmi library
+    implementation project(':lib')
+
+    // LWJGL Java libraries
+    implementation "org.lwjgl:lwjgl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+
+    // Platform-specific native libraries
+    runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$natives"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$natives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:$natives"
+    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$natives"
+}
+
+application {
+    mainClass = 'dev.czfray.pitmi.demo.Main'
+
+    applicationDefaultJvmArgs = [
+            '--enable-native-access=ALL-UNNAMED'
+    ]
+
+    // GLFW requires this JVM argument on macOS
+    if (os.contains('mac')) {
+        applicationDefaultJvmArgs = ['-XstartOnFirstThread']
+    }
+}

@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+}
+
+def lwjglVersion = rootProject.ext.lwjglVersion
+
+group = 'dev.czfray'
+version = '0.1.0'
+
+tasks.named('jar') {
+    archiveBaseName = 'pitmi'
+}
+
+dependencies {
+    implementation "org.lwjgl:lwjgl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+}
